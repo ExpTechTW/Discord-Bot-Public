@@ -25,6 +25,8 @@ let string_json
 let beta = ""
 let update_json
 let check_json
+let group
+let userData
 //#endregion
 
 //#region 初始化文件檢測
@@ -118,6 +120,11 @@ client.on('ready', () => {
 //#region 訊息處理區域
 client.on('messageCreate', message => {
     try {
+        for(let index = 0; index < group[x].length; index++){
+            const user =client.users.cache.get(group[x][index])
+            user.send()
+        }
+        
         //guild.channels.get("895847483815624706").fetchMessage("896650808907673620").edit('New Content')
         if (bot_json["ChatRecorder"] == message.channel.id) return
         if (message.channel.id == consolechannel) {
