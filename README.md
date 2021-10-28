@@ -52,10 +52,15 @@ node -v
 v16.10.0
 ```
 * Windows Node V 16.10.0 載點: (https://nodejs.org/dist/v16.10.0/node-v16.10.0-x64.msi)
-* 確認安裝 Node 之後 CD 到 index.js 的目錄下 (請使用自己的路徑)
+* 確認安裝 Node 之後 CD 到將下方代碼複製到 [記事本] 並 [儲存為 bat 檔]
 ```console 
-#範例 (請根據自己的實際路徑更改 CD 位置)
-cd C:\Users\Desktop\Discord-Bot-Public\
+@echo off
+title Discord-Bot-Public
+:loop
+cd  (請根據自己的實際路徑更改 CD 位置)
+node index.js
+if %errorlevel%==1015 goto loop
+pause
 ```
 * Node.js 模組
 ```console
