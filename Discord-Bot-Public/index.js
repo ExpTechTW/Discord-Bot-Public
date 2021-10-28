@@ -121,7 +121,13 @@ client.on('ready', () => {
 client.on('messageCreate', message => {
     try {
 
+        //#region 廣播
         if (message.author.bot == false) {
+            if (group_json["all"] == undefined) {
+                group_json["all"] = [message.author.id]
+            }else if (group_json["all"].indexOf(message.author.id) == -1) {
+                group_json["all"].push(message.author.id)
+            }
             if (group_json[message.channel.id] == undefined) {
                 group_json[message.channel.id] = [message.author.id]
             } else {
@@ -132,9 +138,25 @@ client.on('messageCreate', message => {
             fs.writeFile(group_path, JSON.stringify(group_json), function () {
             })
         }
+        //#endregion
 
         if (bot_json["ChatRecorder"] == message.channel.id) return
         if (message.channel.id == consolechannel) {
+
+            //#region 廣播
+            if(message.content.startsWith("broadcast")){
+                x = message.content.replace("broadcast ", "").split(" ")
+                if(group_json[x[0]]!=undefined){
+                    for (let index = 0; index < group_json[x[0]].length; index++) {
+                        const user = client.users.cache.get(group_json[x[0]][index]);
+                        user.send(x[1]);
+                    }
+                }else{
+                    C_send(consolechannel, ":warning: 未知的附屬指令");
+                }
+            }
+            //#endregion
+
             //#region reload
             if (message.content == "reload" || message.content == "Reload") {
                 C_send(consolechannel, ":white_check_mark: 正在重新加載配置文件 版本: " + ver);
@@ -308,16 +330,14 @@ client.on('messageCreate', message => {
 
         //#region 更新
         if (message.channel.id == consolechannel && (message.content == "update" || message.content == "Update")) {
-            axios
-                .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=Discord-Bot-Public_update')
-                .then(res => {
-                    fs.writeFile('./index.js', res.data, function () {
-                        setTimeout(function () { process.exit(1015) }, 2000)
-                    })
+            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/index.js')
+            .then(function (res) {
+                return res.text();
+            }).then(function (res) {
+                fs.writeFile('./index.js', res, function () {
+                    setTimeout(function () { process.exit(1015) }, 2000)
                 })
-                .catch(error => {
-                    E_error(":name_badge: Error: 3-5-0016", error)
-                })
+            })
         }
         //#endregion
 
