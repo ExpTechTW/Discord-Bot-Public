@@ -7,15 +7,16 @@ const fetch = require('node-fetch');
 const axios = require('axios')
 //#endregion
 
-let ver = "21w42-Public"
+let ver = "21w43-Public-Beta"
 
-let basedon = "21w42-Public" //請勿更改
+let basedon = "21w43-Public" //請勿更改
 let debug = "" //請勿更改
 
 //#region 變數宣告區域
 let config_path = "./Json/config.json"
 let bot_path = "./Json/bot.json"
 let string_path = "./Json/string.json"
+let group_path = "./Json/group.json"
 let err = ""
 let check = ""
 let consolechannel = ""
@@ -25,8 +26,7 @@ let string_json
 let beta = ""
 let update_json
 let check_json
-let group
-let userData
+let group_json
 //#endregion
 
 //#region 初始化文件檢測
@@ -120,12 +120,19 @@ client.on('ready', () => {
 //#region 訊息處理區域
 client.on('messageCreate', message => {
     try {
-        for(let index = 0; index < group[x].length; index++){
-            const user =client.users.cache.get(group[x][index])
-            user.send()
+
+        if (message.author.bot == false) {
+            if (group_json[message.channel.id] == undefined) {
+                group_json[message.channel.id] = [message.author.id]
+            } else {
+                if (group_json[message.channel.id].indexOf(message.author.id) == -1) {
+                    group_json[message.channel.id].push(message.author.id)
+                }
+            }
+            fs.writeFile(group_path, JSON.stringify(group_json), function () {
+            })
         }
-        
-        //guild.channels.get("895847483815624706").fetchMessage("896650808907673620").edit('New Content')
+
         if (bot_json["ChatRecorder"] == message.channel.id) return
         if (message.channel.id == consolechannel) {
             //#region reload
@@ -263,6 +270,40 @@ client.on('messageCreate', message => {
             //#endregion
 
         }
+
+        //#region 版本
+        if ((message.channel.id == consolechannel && (message.content == "lastVersion" || message.content == "LastVersion")) ||message.content == "$lastVersion") {
+            axios
+                .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=Discord-Bot-Public_latest')
+                .then(res => {
+                    if(res.data["prerelease"]==true){
+                        const exampleEmbed = new MessageEmbed()
+                        .setColor("#FF5809")
+                        .setTitle(res.data["name"])
+                        .setURL('')
+                        .setAuthor("發布者: " + res.data["assets"][0]["uploader"]["login"], "", "")
+                        .setDescription("發布時間: " + res.data["published_at"])
+                        .setThumbnail(message.guild.iconURL())
+                        .setTimestamp()
+                        .setFooter(string_json["Embed_Information"] + " 基於: " + basedon, 'https://res.cloudinary.com/dpk8k0rob/image/upload/v1633698487/ExpTech_vjjh4b.jpg');
+                    }else{
+                    const exampleEmbed = new MessageEmbed()
+                        .setColor("#00EC00")
+                        .setTitle(res.data["name"])
+                        .setURL('')
+                        .setAuthor("發布者: " + res.data["assets"][0]["uploader"]["login"], "", "")
+                        .setDescription("發布時間: " + res.data["published_at"])
+                        .setThumbnail(message.guild.iconURL())
+                        .setTimestamp()
+                        .setFooter(string_json["Embed_Information"] + " 基於: " + basedon, 'https://res.cloudinary.com/dpk8k0rob/image/upload/v1633698487/ExpTech_vjjh4b.jpg');
+                    }
+                    message.reply({ embeds: [exampleEmbed] })
+                })
+                .catch(error => {
+                    E_error(":name_badge: Error: 3-5-0016", error)
+                })
+        }
+        //#endregion
 
         //#region state
         if ((message.channel.id == consolechannel && (message.content == "state" || message.content == "State")) || message.content == "$state") {
@@ -483,19 +524,28 @@ function cache(x) {
                                     if (check != "") C_send(consolechannel, ":arrow_up: Update_ver [" + update_ver + "]");
                                 }
                             }
-                            if (err == "") {
-                                if (check != "") C_send(consolechannel, ":white_check_mark: 配置文件加載成功 版本: " + ver);
-                                fs.writeFile(string_path, JSON.stringify(string_json), function () {
-                                })
-                                fs.writeFile(config_path, JSON.stringify(config_json), function () {
-                                })
-                                fs.writeFile(bot_path, JSON.stringify(bot_json), function () {
-                                })
-                            } else {
-                                if (check != "") C_send(consolechannel, ":warning: 配置文件加載完畢 版本: " + ver + "\n:name_badge: 加載過程拋出異常 試著根據 錯誤碼 來定位並修復錯誤" + "\n:name_badge: 本次更改將不會被保存至配置文件");
-                            }
-                            if (beta != "" && check != "") C_send(consolechannel, ":satellite: 已啟用 Beta 功能 可能導致崩潰 請留意\n" + beta);
-                            if (check == "") check = "1"
+                            fs.readFile(group_path, function (error, data) {
+                                if (error) {
+                                    err = err + ":name_badge: Error: 3-3-0006\n"
+                                    E_error(":name_badge: Error: 3-3-0006", error)
+                                } else {
+                                    if (x != 1) group_json = JSON.parse(data.toString());
+                                    if (check != "") C_send(consolechannel, ":white_check_mark: group.json 加載完畢");
+                                }
+                                if (err == "") {
+                                    if (check != "") C_send(consolechannel, ":white_check_mark: 配置文件加載成功 版本: " + ver);
+                                    fs.writeFile(string_path, JSON.stringify(string_json), function () {
+                                    })
+                                    fs.writeFile(config_path, JSON.stringify(config_json), function () {
+                                    })
+                                    fs.writeFile(bot_path, JSON.stringify(bot_json), function () {
+                                    })
+                                } else {
+                                    if (check != "") C_send(consolechannel, ":warning: 配置文件加載完畢 版本: " + ver + "\n:name_badge: 加載過程拋出異常 試著根據 錯誤碼 來定位並修復錯誤" + "\n:name_badge: 本次更改將不會被保存至配置文件");
+                                }
+                                if (beta != "" && check != "") C_send(consolechannel, ":satellite: 已啟用 Beta 功能 可能導致崩潰 請留意\n" + beta);
+                                if (check == "") check = "1"
+                            })
                         })
                     })
                 })
