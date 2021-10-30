@@ -64,6 +64,7 @@ pause
 ```
 * Node.js 模組
 ```console
+npm install discord.js
 npm install axios
 npm i node-fetch@1.7.3
 ```
