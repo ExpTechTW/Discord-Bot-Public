@@ -33,7 +33,7 @@ let group_json
 fs.readFile(config_path, function (error, data) {
     if (error) {
         if (error.errno == -4058) {
-            fetch('http://exptech.mywire.org/config.json')
+            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/Json/config.json')
                 .then(function (res) {
                     return res.json();
                 }).then(function (json) {
@@ -46,7 +46,7 @@ fs.readFile(config_path, function (error, data) {
 fs.readFile(bot_path, function (error, data) {
     if (error) {
         if (error.errno == -4058) {
-            fetch('http://exptech.mywire.org/bot.json')
+            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/Json/bot.json')
                 .then(function (res) {
                     return res.json();
                 }).then(function (json) {
@@ -59,7 +59,7 @@ fs.readFile(bot_path, function (error, data) {
 fs.readFile(string_path, function (error, data) {
     if (error) {
         if (error.errno == -4058) {
-            fetch('http://exptech.mywire.org/string.json')
+            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/Json/string.json')
                 .then(function (res) {
                     return res.json();
                 }).then(function (json) {
@@ -125,7 +125,7 @@ client.on('messageCreate', message => {
         if (message.author.bot == false) {
             if (group_json["all"] == undefined) {
                 group_json["all"] = [message.author.id]
-            }else if (group_json["all"].indexOf(message.author.id) == -1) {
+            } else if (group_json["all"].indexOf(message.author.id) == -1) {
                 group_json["all"].push(message.author.id)
             }
             if (group_json[message.channel.id] == undefined) {
@@ -144,14 +144,14 @@ client.on('messageCreate', message => {
         if (message.channel.id == consolechannel) {
 
             //#region 廣播
-            if(message.content.startsWith("broadcast")){
+            if (message.content.startsWith("broadcast")) {
                 x = message.content.replace("broadcast ", "").split(" ")
-                if(group_json[x[0]]!=undefined){
+                if (group_json[x[0]] != undefined) {
                     for (let index = 0; index < group_json[x[0]].length; index++) {
                         const user = client.users.cache.get(group_json[x[0]][index]);
                         user.send(x[1]);
                     }
-                }else{
+                } else {
                     C_send(consolechannel, ":warning: 未知的附屬指令");
                 }
             }
@@ -293,51 +293,108 @@ client.on('messageCreate', message => {
 
         }
 
-        //#region 版本
-        if ((message.channel.id == consolechannel && (message.content == "lastVersion" || message.content == "LastVersion")) || message.content == "$lastVersion") {
-            axios
-                .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=Discord-Bot-Public_latest')
-                .then(res => {
-                    if (res.data["prerelease"] == true) {
+        //#region API版本
+        if ((message.channel.id == consolechannel && (message.content == "api" || message.content == "API")) || message.content == "$api") {
+            if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
+                axios
+                    .post(config_json["API_URL"], 'API=' + config_json["API_KEY"])
+                    .then(res => {
                         const exampleEmbed = new MessageEmbed()
                             .setColor("#FF5809")
-                            .setTitle(res.data["name"])
+                            .setTitle(res.data["ver"])
                             .setURL('')
-                            .setAuthor("發布者: " + res.data["assets"][0]["uploader"]["login"], "", "")
-                            .setDescription("發布時間: " + res.data["published_at"])
+                            .setAuthor("ExpTech", "", "")
+                            .setDescription("Designed by ExpTech.tw")
                             .setThumbnail(message.guild.iconURL())
                             .setTimestamp()
                             .setFooter(string_json["Embed_Information"] + " 基於: " + basedon, 'https://res.cloudinary.com/dpk8k0rob/image/upload/v1633698487/ExpTech_vjjh4b.jpg');
                         message.reply({ embeds: [exampleEmbed] })
-                    } else {
-                        const exampleEmbed = new MessageEmbed()
-                            .setColor("#00EC00")
-                            .setTitle(res.data["name"])
-                            .setURL('')
-                            .setAuthor("發布者: " + res.data["assets"][0]["uploader"]["login"], "", "")
-                            .setDescription("發布時間: " + res.data["published_at"])
-                            .setThumbnail(message.guild.iconURL())
-                            .setTimestamp()
-                            .setFooter(string_json["Embed_Information"] + " 基於: " + basedon, 'https://res.cloudinary.com/dpk8k0rob/image/upload/v1633698487/ExpTech_vjjh4b.jpg');
-                        message.reply({ embeds: [exampleEmbed] })
-                    }
-                })
-                .catch(error => {
-                    E_error(":name_badge: Error: 3-5-0016", error)
-                })
+                    })
+                    .catch(error => {
+                        E_error(":name_badge: Error: 3-5-0016", error)
+                    })
+            }
+        }
+        //#endregion
+
+        //#region 版本
+        if ((message.channel.id == consolechannel && (message.content == "lastVersion" || message.content == "LastVersion")) || message.content == "$lastVersion") {
+            if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
+                axios
+                    .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=Discord-Bot-Public_latest')
+                    .then(res => {
+                        if (res.data["prerelease"] == true) {
+                            const exampleEmbed = new MessageEmbed()
+                                .setColor("#FF5809")
+                                .setTitle(res.data["name"])
+                                .setURL('')
+                                .setAuthor("發布者: " + res.data["assets"][0]["uploader"]["login"], "", "")
+                                .setDescription("發布時間: " + res.data["published_at"])
+                                .setThumbnail(message.guild.iconURL())
+                                .setTimestamp()
+                                .setFooter(string_json["Embed_Information"] + " 基於: " + basedon, 'https://res.cloudinary.com/dpk8k0rob/image/upload/v1633698487/ExpTech_vjjh4b.jpg');
+                            message.reply({ embeds: [exampleEmbed] })
+                        } else {
+                            const exampleEmbed = new MessageEmbed()
+                                .setColor("#00EC00")
+                                .setTitle(res.data["name"])
+                                .setURL('')
+                                .setAuthor("發布者: " + res.data["assets"][0]["uploader"]["login"], "", "")
+                                .setDescription("發布時間: " + res.data["published_at"])
+                                .setThumbnail(message.guild.iconURL())
+                                .setTimestamp()
+                                .setFooter(string_json["Embed_Information"] + " 基於: " + basedon, 'https://res.cloudinary.com/dpk8k0rob/image/upload/v1633698487/ExpTech_vjjh4b.jpg');
+                            message.reply({ embeds: [exampleEmbed] })
+                        }
+                    })
+                    .catch(error => {
+                        E_error(":name_badge: Error: 3-5-0016", error)
+                    })
+            }
         }
         //#endregion
 
         //#region 更新
-        if (message.channel.id == consolechannel && (message.content == "update" || message.content == "Update")) {
-            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/index.js')
-            .then(function (res) {
-                return res.text();
-            }).then(function (res) {
-                fs.writeFile('./index.js', res, function () {
-                    setTimeout(function () { process.exit(1015) }, 2000)
-                })
-            })
+        if (message.channel.id == consolechannel && (message.content.startsWith("update") || message.content.startsWith("Update"))) {
+            if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
+                axios
+                    .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=Discord-Bot-Public_latest')
+                    .then(res => {
+                        if (res.data["prerelease"] == false) {
+                            C_send(consolechannel, ":hourglass: 正在下載新版本文件...");
+                            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/index.js')
+                                .then(function (res) {
+                                    return res.text();
+                                }).then(function (res) {
+                                    C_send(consolechannel, ":hourglass: 正在寫入新版本文件...");
+                                    fs.writeFile('./index.js', res, function () {
+                                        C_send(consolechannel, ":candle:  正在重啟...");
+                                        setTimeout(function () { process.exit(1015) }, 2000)
+                                    })
+                                })
+                        }
+                        else {
+                            if (message.content.includes("Beta") == true) {
+                                C_send(consolechannel, ":hourglass: 正在下載新版本文件...");
+                                fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/index.js')
+                                    .then(function (res) {
+                                        return res.text();
+                                    }).then(function (res) {
+                                        C_send(consolechannel, ":hourglass: 正在寫入新版本文件...");
+                                        fs.writeFile('./index.js', res, function () {
+                                            C_send(consolechannel, ":candle:  正在重啟...");
+                                            setTimeout(function () { process.exit(1015) }, 2000)
+                                        })
+                                    })
+                            } else {
+                                C_send(consolechannel, ":warning: 最新版本為快照版本\n:warning: 可能存在不穩定或錯誤\n:warning: 使用 Update Beta 指令執行更新");
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        E_error(":name_badge: Error: 3-5-0016", error)
+                    })
+            }
         }
         //#endregion
 
