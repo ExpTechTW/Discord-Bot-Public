@@ -7,9 +7,9 @@ const fetch = require('node-fetch');
 const axios = require('axios')
 //#endregion
 
-let ver = "21w43-Public-Beta-1"
+let ver = "21w44-pre1"
 
-let basedon = "21w43-Public" //請勿更改
+let basedon = "21w44" //請勿更改
 let debug = "" //請勿更改
 
 //#region 變數宣告區域
@@ -120,7 +120,7 @@ client.on('ready', () => {
 //#region 訊息處理區域
 client.on('messageCreate', message => {
     try {
-
+       
         //#region 廣播
         if (message.author.bot == false) {
             if (group_json["all"] == undefined) {
@@ -259,6 +259,7 @@ client.on('messageCreate', message => {
                     C_send(consolechannel, ":warning: 似乎有哪些地方發生錯誤了 版本: " + ver + ":warning: 試著使用 Reload 來定位錯誤"); return
                 }
                 if (message.author.bot == true) return
+                if (message.content === "") return
                 if (bot_json["Translate_Repeat_Tag"] == false && message.content.includes("@") == true) return
                 if (message.channel.id != bot_json["Translate_en"] && message.channel.id == bot_json["Translate_zh_TW"]) {
                     if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
