@@ -27,6 +27,7 @@
 * Discord (https://discord.gg/rkPu3msUf3)
 
 ## 現有功能
+* 廣播訊息功能
 * 創建頻道通知
 * 刪除頻道通知
 * 聊天記錄功能
