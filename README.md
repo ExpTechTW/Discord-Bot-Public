@@ -24,7 +24,7 @@
 * 追求穩定可使用基於 原始碼 開發位於 (Release) 區域之已發布版本
 * 不推薦使用 Code區域 原始碼創建機器人
 * 如需更改代碼請創建分支或新增拉取請求並遵守 AGPL-3.0 開源協議
-* Discord (https://discord.gg/TtvkHwy97f)
+* Discord (https://discord.gg/rkPu3msUf3)
 
 ## 現有功能
 * 創建頻道通知
