@@ -60,7 +60,7 @@ title Discord-Bot-Public
 :loop
 cd  (請根據自己的實際路徑更改 CD 位置)
 node index.js
-if %errorlevel%==1015 goto loop
+if %errorlevel%==105 goto loop
 pause
 ```
 * Node.js 模組
