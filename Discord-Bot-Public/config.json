@@ -1,0 +1,8 @@
+{
+    "token": "<Your Discord Bot Token>",
+    "console": "Console ID",
+    "API_URL": "http://exptech.mywire.org:1015/",
+    "API_KEY": "",
+    "Update_ver": 101,
+    "API_URL_SPARE": "http://exptech.mywire.org:910/"
+}
