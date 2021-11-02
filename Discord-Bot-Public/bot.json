@@ -1,0 +1,17 @@
+{
+    "URL_Security_Verification": true,
+    "Translate_State": false,
+    "Translate_Repeat_Tag": true,
+    "Translate_en": "Channel ID",
+    "Translate_zh_TW": "Channel ID",
+    "ChatRecorder_State": false,
+    "ChatRecorder": "Channel ID",
+    "Channel_Adjustment_Notification_State": false,
+    "Channel_Adjustment_Notification": "Channel ID",
+    "Channel_Adjustment_Notification_SET": [
+        {
+            "ChannelCreate_Colour": "#00EC00",
+            "ChannelDelete_Colour": "#E60000"
+        }
+    ]
+}
