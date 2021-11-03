@@ -7,16 +7,16 @@ const fetch = require('node-fetch');
 const axios = require('axios')
 //#endregion
 
-let ver = "21w44-pre1"
+let ver = "21w44-pre5"
 
 let basedon = "21w44" //請勿更改
 let debug = "" //請勿更改
 
 //#region 變數宣告區域
-let config_path = "./Json/config.json"
-let bot_path = "./Json/bot.json"
-let string_path = "./Json/string.json"
-let group_path = "./Json/group.json"
+let config_path = "./config.json"
+let bot_path = "./bot.json"
+let string_path = "./string.json"
+let group_path = "./group.json"
 let err = ""
 let check = ""
 let consolechannel = ""
@@ -69,6 +69,14 @@ fs.readFile(string_path, function (error, data) {
         }
     }
 })
+fs.readFile(group_path, function (error, data) {
+    if (error) {
+        if (error.errno == -4058) {
+            fs.writeFile(group_path, JSON.stringify("{}"), (err) => {
+            })
+        }
+    }
+})
 //#endregion
 
 //#region 初始化
@@ -106,7 +114,7 @@ client.on('ready', () => {
         if (err == "") {
             C_send(consolechannel, ":white_check_mark: 機器人成功啟動 - " + ver);
         } else if (err == "Update") {
-            C_send(consolechannel, ":warning: 機器人已啟動 版本: " + ver + "\n:name_badge: 配置文件須更新 請使用 Update 完成更新");
+            C_send(consolechannel, ":warning: 機器人已啟動 版本: " + ver + "\n:name_badge: 配置文件須更新 請使用 ConfigUpdate 完成更新");
             err = ""
         } else {
             C_send(consolechannel, ":warning: 機器人已啟動 版本: " + ver + "\n:name_badge: 啟動過程拋出異常 試著使用 Reload 來定位錯誤");
@@ -120,7 +128,7 @@ client.on('ready', () => {
 //#region 訊息處理區域
 client.on('messageCreate', message => {
     try {
-       
+
         //#region 廣播
         if (message.author.bot == false) {
             if (group_json["all"] == undefined) {
@@ -143,7 +151,7 @@ client.on('messageCreate', message => {
         if (bot_json["ChatRecorder"] == message.channel.id) return
         if (message.channel.id == consolechannel) {
 
-            //#region 廣播
+            //#region 廣播發送
             if (message.content.startsWith("broadcast")) {
                 x = message.content.replace("broadcast ", "").split(" ")
                 if (group_json[x[0]] != undefined) {
@@ -162,6 +170,13 @@ client.on('messageCreate', message => {
                 C_send(consolechannel, ":white_check_mark: 正在重新加載配置文件 版本: " + ver);
                 err = ""
                 cache(1)
+            }
+            //#endregion
+
+            //#region restart
+            if (message.content == "restart" || message.content == "Restart") {
+                C_send(consolechannel, ":white_check_mark: 正在重啟機器人 版本: " + ver);
+                setTimeout(function () { process.exit(105) }, 2000)
             }
             //#endregion
 
@@ -229,6 +244,29 @@ client.on('messageCreate', message => {
             }
             //#endregion
 
+            //#region 認證
+            if (message.content.startsWith("$認證")) {
+                axios
+                    .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=xuid&&value=' + message.content.replace("$認證 ", "").replace("$認證", ""))
+                    .then(res => {
+                        console.log(res.data)
+                        if (res.data.includes("Player not found")) {
+                            message.reply("請輸入正確 Xbox 玩家代號 :warning:")
+                        } else {
+                            message.reply("認證成功 安全檢查通過 :white_check_mark:\nUUID: " + res.data)
+                            try {
+                                message.member.setNickname(m.content.replace("$認證 ", "").replace("$認證", ""));
+                                message.member.roles.add(['878862006428524604']);
+                            } catch (error) {
+                                E_error(":name_badge: Error: 3-5-0016", error)
+                            }
+                        }
+                    }).catch(function (err) {
+                        E_error(":name_badge: Error: 3-5-0016", err)
+                    });
+            }
+            //#endregion
+
             //#region 聊天記錄
             if (bot_json["ChatRecorder_State"] == true) {
                 if (err.includes("3-1-0007") == true) {
@@ -266,7 +304,23 @@ client.on('messageCreate', message => {
                         axios
                             .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=translation-en&&value=' + message.content)
                             .then(res => {
-                                C_send(bot_json["Translate_en"], message.author.username + " >> " + res.data["response"])
+                                if (config_json["Webhook-en"] != "<Put Webhook URL Here>") {
+                                    let text = {
+                                        "username": "",
+                                        "avatar_url": "",
+                                        "content": ""
+                                    }
+                                    text["content"] = res.data["response"]
+                                    text["username"] = message.author.username
+                                    text["avatar_url"] = message.author.avatarURL()
+                                    axios
+                                        .post(config_json["Webhook-en"], text)
+                                        .catch(error => {
+                                            E_error(":name_badge: Error: 2-3-0020", error)
+                                        })
+                                } else {
+                                    C_send(bot_json["Translate_en"], message.author.username + " >> " + res.data["response"])
+                                }
                             })
                             .catch(error => {
                                 E_error(":name_badge: Error: 3-5-0016", error)
@@ -280,7 +334,23 @@ client.on('messageCreate', message => {
                         axios
                             .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=translation-TW&&value=' + message.content)
                             .then(res => {
-                                C_send(bot_json["Translate_zh_TW"], message.author.username + " >> " + res.data["response"])
+                                if (config_json["Webhook-cht"] != "<Put Webhook URL Here>") {
+                                    let text = {
+                                        "username": "",
+                                        "avatar_url": "",
+                                        "content": ""
+                                    }
+                                    text["content"] = res.data["response"]
+                                    text["username"] = message.author.username
+                                    text["avatar_url"] = message.author.avatarURL()
+                                    axios
+                                        .post(config_json["Webhook-cht"], text)
+                                        .catch(error => {
+                                            E_error(":name_badge: Error: 2-3-0020", error)
+                                        })
+                                } else {
+                                    C_send(bot_json["Translate_zh_TW"], message.author.username + " >> " + res.data["response"])
+                                }
                             })
                             .catch(error => {
                                 E_error(":name_badge: Error: 3-5-0016", error)
@@ -534,6 +604,10 @@ function C_send(id, msg) {
 
 //#region 錯誤輸出調用
 function E_error(error, info) {
+    if (error == ":name_badge: Error: 3-5-0016") {
+        config_json["API_URL"] = config_json["API_URL_SPARE"]
+        client.channels.cache.get(consolechannel).send(":name_badge: API 主服務器異常 已轉向備用服務器" + ver)
+    }
     if (check == "") {
         console.log('\x1b[31m', error.replace(":name_badge: ", "") + " 版本: " + ver, '\x1b[0m')
     } else {
@@ -586,7 +660,7 @@ function cache(x) {
                                                 if (check != "") C_send(consolechannel, ":arrow_up: " + update_Array[index] + " [" + update_json[update_Ver][0]["config"][0][update_Array[index]] + "]");
                                                 if (check != "") config_json[update_Array[index]] = update_json[update_Ver][0]["config"][0][update_Array[index]]
                                             } else {
-                                                if (check != "") C_send(consolechannel, ":placard: " + update_Array[index] + " [" + config_json[update_Array[index]] + "]");
+                                                if (check != "" && update_Array[index] != "token") C_send(consolechannel, ":placard: " + update_Array[index] + " [" + config_json[update_Array[index]] + "]");
                                             }
                                         }
                                     }
@@ -689,8 +763,3 @@ function SET(x) {
     }
 }
 //#endregion
-
-
-
-
-
