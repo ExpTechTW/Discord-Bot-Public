@@ -24,7 +24,7 @@
 * 追求穩定可使用基於 原始碼 開發位於 (Release) 區域之已發布版本
 * 不推薦使用 Code區域 原始碼創建機器人
 * 如需更改代碼請創建分支或新增拉取請求並遵守 AGPL-3.0 開源協議
-* Discord (https://discord.gg/rkPu3msUf3)
+* 加入我們的<a href="https://discord.gg/rkPu3msUf3">Discord群組</a>!
 
 ## 現有功能
 * 廣播訊息功能
@@ -41,7 +41,7 @@
 * discord.js - V 13.2.0
 
 ### 建立環境
-* 下載 機器人 核心代碼 index.js檔案 載點: (https://github.com/ExpTech-tw/Discord-Bot-Public/releases)
+* 下載 機器人 核心代碼 index.js檔案 載點 [>點我!<](https://github.com/ExpTech-tw/Discord-Bot-Public/releases)
 * 將 檔案 放到桌面資料夾
 * 使用 Windows+R 打開 CMD 視窗
 * 使用下方指令檢查是否有安裝 Node
@@ -52,7 +52,7 @@ node -v
 ```
 v16.10.0
 ```
-* Windows Node V 16.10.0 載點: (https://nodejs.org/dist/v16.10.0/node-v16.10.0-x64.msi)
+* Windows Node V 16.10.0 載點 [>點我!<](https://nodejs.org/dist/v16.10.0/node-v16.10.0-x64.msi)
 * 確認安裝 Node 之後 CD 到將下方代碼複製到 [記事本] 並 [儲存為 bat 檔]
 ```console 
 @echo off
@@ -121,6 +121,6 @@ node index.js
 ```
 
 ## 貢獻者
-* whes1015 - 程式開發
-* 炸蝦好吃 - 協助校正
+* [whes1015](https://github.com/whes1015) - 程式開發
+* [炸蝦好吃](https://github.com/vincentwang0905) - 協助校正
 * smile - 協助校正
