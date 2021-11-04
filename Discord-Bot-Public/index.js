@@ -7,7 +7,7 @@ const fetch = require('node-fetch');
 const axios = require('axios')
 //#endregion
 
-let ver = "21w44-pre5"
+let ver = "21w44-pre6"
 
 let basedon = "21w44" //請勿更改
 let debug = "" //請勿更改
@@ -128,6 +128,85 @@ client.on('ready', () => {
 //#region 訊息處理區域
 client.on('messageCreate', message => {
     try {
+
+        //#region 魔改
+        if (message.channel.id == "903226772974342154") {
+            try {
+                let indata
+                let outdata
+                if (message.content.startsWith("find")) {
+                    fetch('http://150.117.110.118:8805/player/' + message.content.replace("find ", "") + '/raw')
+                        .then(function (res) {
+                            return res.text();
+                        }).then(function (res) {
+                            indata = res
+                        }).catch(error => {
+                            E_error(":name_badge: Error: ExpTech", error)
+                        }).then(function () {
+                            fetch('http://150.117.110.118:8804/player/' + message.content.replace("find ", "") + '/raw')
+                                .then(function (res) {
+                                    return res.text();
+                                }).then(function (res) {
+                                    outdata = res
+                                }).catch(error => {
+                                    E_error(":name_badge: Error: ExpTech", error)
+                                }).then(function () {
+                                    if (indata.includes("找到此玩家") == true && outdata.includes("找到此玩家") == true) {
+                                        message.reply("未找到此玩家的數據")
+                                    } else {
+                                        if (outdata.includes("找到此玩家") == true) {
+                                            outdata = { "death_count": "沒有數據", "player_kill_count": "沒有數據", "mob_kill_count": "沒有數據" }
+                                            indata = JSON.parse(indata)
+                                        } else if (indata.includes("找到此玩家") == true) {
+                                            indata = { "death_count": "沒有數據", "player_kill_count": "沒有數據", "mob_kill_count": "沒有數據" }
+                                            outdata = JSON.parse(outdata)
+                                        } else {
+                                            outdata = JSON.parse(outdata)
+                                            indata = JSON.parse(indata)
+                                        }
+                                        const dateTime = Date.now();
+                                        const timestamp = Math.floor(dateTime / 1000);
+                                        if ((timestamp - (Number(outdata["lastSeen"]) / 1000) > 5 || outdata["lastSeen"] == undefind) && (timestamp - (Number(indata["lastSeen"]) / 1000) > 5 || indata["lastSeen"] == undefined)) {
+                                            const exampleEmbed = new MessageEmbed()
+                                                .setColor("#EA0000")
+                                                .setTitle("離線")
+                                                .setURL('')
+                                                .setAuthor(message.content.replace("find ", ""), "", "")
+                                                .setDescription("UUID: " + outdata["uuid"] + "\n\n外服\n死亡數: " + outdata["death_count"] + "\n擊殺玩家數: " + outdata["player_kill_count"] + "\n生物擊殺數: " + outdata["mob_kill_count"] + "\n\n內服\n死亡數: " + indata["death_count"] + "\n擊殺玩家數: " + indata["player_kill_count"] + "\n生物擊殺數: " + indata["mob_kill_count"])
+                                                .setThumbnail(message.guild.iconURL())
+                                                .setTimestamp()
+                                                .setFooter(string_json["Embed_Information"] + " 基於: " + basedon, 'https://res.cloudinary.com/dpk8k0rob/image/upload/v1633698487/ExpTech_vjjh4b.jpg');
+                                            message.reply({ embeds: [exampleEmbed] })
+                                        } else {
+                                            let online = ""
+                                            if (timestamp - (Number(outdata["lastSeen"]) / 1000) > 5 || outdata["lastSeen"] == undefind) {
+                                                online = "[內服]"
+                                            } else if (timestamp - (Number(indata["lastSeen"]) / 1000) > 5 || indata["lastSeen"] == undefind) {
+                                                online = "[外服]"
+                                            }
+                                            console.log(timestamp)
+                                            console.log((Number(indata["lastSeen"]) / 1000))
+                                            console.log((Number(outdata["lastSeen"]) / 1000))
+                                            const exampleEmbed = new MessageEmbed()
+                                                .setColor("#00EC00")
+                                                .setTitle("在線 " + online)
+                                                .setURL('')
+                                                .setAuthor(message.content.replace("find ", ""), "", "")
+                                                .setDescription("UUID: " + outdata["uuid"] + "\n\n外服\n死亡數: " + outdata["death_count"] + "\n擊殺玩家數: " + outdata["player_kill_count"] + "\n生物擊殺數: " + outdata["mob_kill_count"] + "\n\n內服\n死亡數: " + indata["death_count"] + "\n擊殺玩家數: " + indata["player_kill_count"] + "\n生物擊殺數: " + indata["mob_kill_count"])
+                                                .setThumbnail(message.guild.iconURL())
+                                                .setTimestamp()
+                                                .setFooter(string_json["Embed_Information"] + " 基於: " + basedon, 'https://res.cloudinary.com/dpk8k0rob/image/upload/v1633698487/ExpTech_vjjh4b.jpg');
+                                            message.reply({ embeds: [exampleEmbed] })
+                                        }
+                                    }
+                                })
+                        })
+                }
+            } catch (error) {
+                E_error(":name_badge: Error: ExpTech", error)
+            }
+        }
+        //#endregion
 
         //#region 廣播
         if (message.author.bot == false) {
@@ -255,7 +334,7 @@ client.on('messageCreate', message => {
                         } else {
                             message.reply("認證成功 安全檢查通過 :white_check_mark:\nUUID: " + res.data)
                             try {
-                                message.member.setNickname(m.content.replace("$認證 ", "").replace("$認證", ""));
+                                message.member.setNickname(message.content.replace("$認證 ", "").replace("$認證", ""));
                                 message.member.roles.add(['878862006428524604']);
                             } catch (error) {
                                 E_error(":name_badge: Error: 3-5-0016", error)
