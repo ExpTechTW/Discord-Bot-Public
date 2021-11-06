@@ -7,7 +7,7 @@ const fetch = require('node-fetch');
 const axios = require('axios')
 //#endregion
 
-let ver = "21w44-pre6"
+let ver = "21w44-rc1"
 
 let basedon = "21w44" //請勿更改
 let debug = "" //請勿更改
@@ -27,6 +27,7 @@ let beta = ""
 let update_json
 let check_json
 let group_json
+let API
 //#endregion
 
 //#region 初始化文件檢測
@@ -90,6 +91,9 @@ fs.readFile(config_path, function (error, data) {
             if (config_json["console"] != "") {
                 consolechannel = config_json["console"]
                 cache()
+                if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
+                    API = config_json["API_URL"]
+                }
                 client.login(config_json["token"])
             } else {
                 err = err + ":name_badge: Error: 5-2-0005\n"
@@ -101,6 +105,12 @@ fs.readFile(config_path, function (error, data) {
         }
     }
 })
+//#endregion
+
+//#region 用戶加入身份
+client.on('guildMemberAdd', member => {
+    member.roles.add(['878861780280025148']);
+});
 //#endregion
 
 //#region 初始化完成
@@ -128,85 +138,6 @@ client.on('ready', () => {
 //#region 訊息處理區域
 client.on('messageCreate', message => {
     try {
-
-        //#region 魔改
-        if (message.channel.id == "903226772974342154") {
-            try {
-                let indata
-                let outdata
-                if (message.content.startsWith("find")) {
-                    fetch('http://150.117.110.118:8805/player/' + message.content.replace("find ", "") + '/raw')
-                        .then(function (res) {
-                            return res.text();
-                        }).then(function (res) {
-                            indata = res
-                        }).catch(error => {
-                            E_error(":name_badge: Error: ExpTech", error)
-                        }).then(function () {
-                            fetch('http://150.117.110.118:8804/player/' + message.content.replace("find ", "") + '/raw')
-                                .then(function (res) {
-                                    return res.text();
-                                }).then(function (res) {
-                                    outdata = res
-                                }).catch(error => {
-                                    E_error(":name_badge: Error: ExpTech", error)
-                                }).then(function () {
-                                    if (indata.includes("找到此玩家") == true && outdata.includes("找到此玩家") == true) {
-                                        message.reply("未找到此玩家的數據")
-                                    } else {
-                                        if (outdata.includes("找到此玩家") == true) {
-                                            outdata = { "death_count": "沒有數據", "player_kill_count": "沒有數據", "mob_kill_count": "沒有數據" }
-                                            indata = JSON.parse(indata)
-                                        } else if (indata.includes("找到此玩家") == true) {
-                                            indata = { "death_count": "沒有數據", "player_kill_count": "沒有數據", "mob_kill_count": "沒有數據" }
-                                            outdata = JSON.parse(outdata)
-                                        } else {
-                                            outdata = JSON.parse(outdata)
-                                            indata = JSON.parse(indata)
-                                        }
-                                        const dateTime = Date.now();
-                                        const timestamp = Math.floor(dateTime / 1000);
-                                        if ((timestamp - (Number(outdata["lastSeen"]) / 1000) > 5 || outdata["lastSeen"] == undefind) && (timestamp - (Number(indata["lastSeen"]) / 1000) > 5 || indata["lastSeen"] == undefined)) {
-                                            const exampleEmbed = new MessageEmbed()
-                                                .setColor("#EA0000")
-                                                .setTitle("離線")
-                                                .setURL('')
-                                                .setAuthor(message.content.replace("find ", ""), "", "")
-                                                .setDescription("UUID: " + outdata["uuid"] + "\n\n外服\n死亡數: " + outdata["death_count"] + "\n擊殺玩家數: " + outdata["player_kill_count"] + "\n生物擊殺數: " + outdata["mob_kill_count"] + "\n\n內服\n死亡數: " + indata["death_count"] + "\n擊殺玩家數: " + indata["player_kill_count"] + "\n生物擊殺數: " + indata["mob_kill_count"])
-                                                .setThumbnail(message.guild.iconURL())
-                                                .setTimestamp()
-                                                .setFooter(string_json["Embed_Information"] + " 基於: " + basedon, 'https://res.cloudinary.com/dpk8k0rob/image/upload/v1633698487/ExpTech_vjjh4b.jpg');
-                                            message.reply({ embeds: [exampleEmbed] })
-                                        } else {
-                                            let online = ""
-                                            if (timestamp - (Number(outdata["lastSeen"]) / 1000) > 5 || outdata["lastSeen"] == undefind) {
-                                                online = "[內服]"
-                                            } else if (timestamp - (Number(indata["lastSeen"]) / 1000) > 5 || indata["lastSeen"] == undefind) {
-                                                online = "[外服]"
-                                            }
-                                            console.log(timestamp)
-                                            console.log((Number(indata["lastSeen"]) / 1000))
-                                            console.log((Number(outdata["lastSeen"]) / 1000))
-                                            const exampleEmbed = new MessageEmbed()
-                                                .setColor("#00EC00")
-                                                .setTitle("在線 " + online)
-                                                .setURL('')
-                                                .setAuthor(message.content.replace("find ", ""), "", "")
-                                                .setDescription("UUID: " + outdata["uuid"] + "\n\n外服\n死亡數: " + outdata["death_count"] + "\n擊殺玩家數: " + outdata["player_kill_count"] + "\n生物擊殺數: " + outdata["mob_kill_count"] + "\n\n內服\n死亡數: " + indata["death_count"] + "\n擊殺玩家數: " + indata["player_kill_count"] + "\n生物擊殺數: " + indata["mob_kill_count"])
-                                                .setThumbnail(message.guild.iconURL())
-                                                .setTimestamp()
-                                                .setFooter(string_json["Embed_Information"] + " 基於: " + basedon, 'https://res.cloudinary.com/dpk8k0rob/image/upload/v1633698487/ExpTech_vjjh4b.jpg');
-                                            message.reply({ embeds: [exampleEmbed] })
-                                        }
-                                    }
-                                })
-                        })
-                }
-            } catch (error) {
-                E_error(":name_badge: Error: ExpTech", error)
-            }
-        }
-        //#endregion
 
         //#region 廣播
         if (message.author.bot == false) {
@@ -285,9 +216,9 @@ client.on('messageCreate', message => {
 
             //#region URL check
             if (bot_json["URL_Security_Verification"] == true && (message.content.includes("http") == true || message.content.includes("https") == true)) {
-                if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
+                if (API != "" && config_json["API_KEY"] != "") {
                     axios
-                        .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=URL_Security_Verification&&value=' + message.content)
+                        .post(API, 'API=' + config_json["API_KEY"] + '&&function=URL_Security_Verification&&value=' + message.content)
                         .then(res => {
                             if (res.data["response"] == "Safety") {
                                 const exampleEmbed = new MessageEmbed()
@@ -325,24 +256,25 @@ client.on('messageCreate', message => {
 
             //#region 認證
             if (message.content.startsWith("$認證")) {
-                axios
-                    .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=xuid&&value=' + message.content.replace("$認證 ", "").replace("$認證", ""))
-                    .then(res => {
-                        console.log(res.data)
-                        if (res.data.includes("Player not found")) {
-                            message.reply("請輸入正確 Xbox 玩家代號 :warning:")
-                        } else {
-                            message.reply("認證成功 安全檢查通過 :white_check_mark:\nUUID: " + res.data)
-                            try {
-                                message.member.setNickname(message.content.replace("$認證 ", "").replace("$認證", ""));
-                                message.member.roles.add(['878862006428524604']);
-                            } catch (error) {
-                                E_error(":name_badge: Error: 3-5-0016", error)
+                if (API != "" && config_json["API_KEY"] != "") {
+                    axios
+                        .post(API, 'API=' + config_json["API_KEY"] + '&&function=xuid&&value=' + message.content.replace("$認證 ", "").replace("$認證", ""))
+                        .then(res => {
+                            if (res.data.includes("Player not found")) {
+                                message.reply("請輸入正確 Xbox 玩家代號 :warning:")
+                            } else {
+                                message.reply("認證成功 安全檢查通過 :white_check_mark:\nUUID: " + res.data)
+                                try {
+                                    message.member.setNickname(message.content.replace("$認證 ", "").replace("$認證", ""));
+                                    message.member.roles.add(['878862006428524604']);
+                                } catch (error) {
+                                    E_error(":name_badge: Error: 3-5-0016", error)
+                                }
                             }
-                        }
-                    }).catch(function (err) {
-                        E_error(":name_badge: Error: 3-5-0016", err)
-                    });
+                        }).catch(function (err) {
+                            E_error(":name_badge: Error: 3-5-0016", err)
+                        });
+                }
             }
             //#endregion
 
@@ -379,9 +311,9 @@ client.on('messageCreate', message => {
                 if (message.content === "") return
                 if (bot_json["Translate_Repeat_Tag"] == false && message.content.includes("@") == true) return
                 if (message.channel.id != bot_json["Translate_en"] && message.channel.id == bot_json["Translate_zh_TW"]) {
-                    if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
+                    if (API != "" && config_json["API_KEY"] != "") {
                         axios
-                            .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=translation-en&&value=' + message.content)
+                            .post(API, 'API=' + config_json["API_KEY"] + '&&function=translation-en&&value=' + message.content)
                             .then(res => {
                                 if (config_json["Webhook-en"] != "<Put Webhook URL Here>") {
                                     let text = {
@@ -409,9 +341,9 @@ client.on('messageCreate', message => {
                     }
                 }
                 if (message.channel.id != bot_json["Translate_zh_TW"] && message.channel.id == bot_json["Translate_en"]) {
-                    if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
+                    if (API != "" && config_json["API_KEY"] != "") {
                         axios
-                            .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=translation-TW&&value=' + message.content)
+                            .post(API, 'API=' + config_json["API_KEY"] + '&&function=translation-TW&&value=' + message.content)
                             .then(res => {
                                 if (config_json["Webhook-cht"] != "<Put Webhook URL Here>") {
                                     let text = {
@@ -445,9 +377,9 @@ client.on('messageCreate', message => {
 
         //#region API版本
         if ((message.channel.id == consolechannel && (message.content == "api" || message.content == "API")) || message.content == "$api") {
-            if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
+            if (API != "" && config_json["API_KEY"] != "") {
                 axios
-                    .post(config_json["API_URL"], 'API=' + config_json["API_KEY"])
+                    .post(API, 'API=' + config_json["API_KEY"])
                     .then(res => {
                         const exampleEmbed = new MessageEmbed()
                             .setColor("#FF5809")
@@ -469,9 +401,9 @@ client.on('messageCreate', message => {
 
         //#region 版本
         if ((message.channel.id == consolechannel && (message.content == "lastVersion" || message.content == "LastVersion")) || message.content == "$lastVersion") {
-            if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
+            if (API != "" && config_json["API_KEY"] != "") {
                 axios
-                    .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=Discord-Bot-Public_latest')
+                    .post(API, 'API=' + config_json["API_KEY"] + '&&function=Discord-Bot-Public_latest')
                     .then(res => {
                         if (res.data["prerelease"] == true) {
                             const exampleEmbed = new MessageEmbed()
@@ -506,9 +438,9 @@ client.on('messageCreate', message => {
 
         //#region 更新
         if (message.channel.id == consolechannel && (message.content.startsWith("update") || message.content.startsWith("Update"))) {
-            if (config_json["API_URL"] != "" && config_json["API_KEY"] != "") {
+            if (API != "" && config_json["API_KEY"] != "") {
                 axios
-                    .post(config_json["API_URL"], 'API=' + config_json["API_KEY"] + '&&function=Discord-Bot-Public_latest')
+                    .post(API, 'API=' + config_json["API_KEY"] + '&&function=Discord-Bot-Public_latest')
                     .then(res => {
                         if (res.data["prerelease"] == false) {
                             C_send(consolechannel, ":hourglass: 正在下載新版本文件...");
@@ -684,8 +616,13 @@ function C_send(id, msg) {
 //#region 錯誤輸出調用
 function E_error(error, info) {
     if (error == ":name_badge: Error: 3-5-0016") {
-        config_json["API_URL"] = config_json["API_URL_SPARE"]
-        client.channels.cache.get(consolechannel).send(":name_badge: API 主服務器異常 已轉向備用服務器" + ver)
+        if (API = config_json["API_URL"]) {
+            API = config_json["API_URL_SPARE"]
+            client.channels.cache.get(consolechannel).send(":name_badge: API 主服務器異常 已轉向備用服務器" + ver)
+        } else {
+            API = config_json["API_URL"]
+            client.channels.cache.get(consolechannel).send(":name_badge: API 次服務器異常 已轉向主服務器" + ver)
+        }
     }
     if (check == "") {
         console.log('\x1b[31m', error.replace(":name_badge: ", "") + " 版本: " + ver, '\x1b[0m')
