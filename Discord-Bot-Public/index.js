@@ -5,11 +5,12 @@ const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_
 const fs = require('fs');
 const fetch = require('node-fetch');
 const axios = require('axios')
+const { parse } = require('rss-to-json');
 //#endregion
 
-let ver = "21w44-rc1"
+let ver = "21w45"
 
-let basedon = "21w44" //請勿更改
+let basedon = "21w45" //請勿更改
 let debug = "" //請勿更改
 
 //#region 變數宣告區域
@@ -105,12 +106,6 @@ fs.readFile(config_path, function (error, data) {
         }
     }
 })
-//#endregion
-
-//#region 用戶加入身份
-client.on('guildMemberAdd', member => {
-    member.roles.add(['878861780280025148']);
-});
 //#endregion
 
 //#region 初始化完成
@@ -220,7 +215,7 @@ client.on('messageCreate', message => {
                     axios
                         .post(API, 'API=' + config_json["API_KEY"] + '&&function=URL_Security_Verification&&value=' + message.content)
                         .then(res => {
-                            if (res.data["response"] == "Safety") {
+                            if (res.data["state"] == "Safety") {
                                 const exampleEmbed = new MessageEmbed()
                                     .setColor("#00EC00")
                                     .setTitle("網址檢測 ➝ 安全")
@@ -250,30 +245,6 @@ client.on('messageCreate', message => {
                         })
                 } else {
                     E_error(":name_badge: Error: 3-5-0019", error)
-                }
-            }
-            //#endregion
-
-            //#region 認證
-            if (message.content.startsWith("$認證")) {
-                if (API != "" && config_json["API_KEY"] != "") {
-                    axios
-                        .post(API, 'API=' + config_json["API_KEY"] + '&&function=xuid&&value=' + message.content.replace("$認證 ", "").replace("$認證", ""))
-                        .then(res => {
-                            if (res.data.includes("Player not found")) {
-                                message.reply("請輸入正確 Xbox 玩家代號 :warning:")
-                            } else {
-                                message.reply("認證成功 安全檢查通過 :white_check_mark:\nUUID: " + res.data)
-                                try {
-                                    message.member.setNickname(message.content.replace("$認證 ", "").replace("$認證", ""));
-                                    message.member.roles.add(['878862006428524604']);
-                                } catch (error) {
-                                    E_error(":name_badge: Error: 3-5-0016", error)
-                                }
-                            }
-                        }).catch(function (err) {
-                            E_error(":name_badge: Error: 3-5-0016", err)
-                        });
                 }
             }
             //#endregion
@@ -321,7 +292,7 @@ client.on('messageCreate', message => {
                                         "avatar_url": "",
                                         "content": ""
                                     }
-                                    text["content"] = res.data["response"]
+                                    text["content"] = res.data["state"]
                                     text["username"] = message.author.username
                                     text["avatar_url"] = message.author.avatarURL()
                                     axios
@@ -330,7 +301,7 @@ client.on('messageCreate', message => {
                                             E_error(":name_badge: Error: 2-3-0020", error)
                                         })
                                 } else {
-                                    C_send(bot_json["Translate_en"], message.author.username + " >> " + res.data["response"])
+                                    C_send(bot_json["Translate_en"], message.author.username + " >> " + res.data["state"])
                                 }
                             })
                             .catch(error => {
@@ -351,7 +322,7 @@ client.on('messageCreate', message => {
                                         "avatar_url": "",
                                         "content": ""
                                     }
-                                    text["content"] = res.data["response"]
+                                    text["content"] = res.data["state"]
                                     text["username"] = message.author.username
                                     text["avatar_url"] = message.author.avatarURL()
                                     axios
@@ -360,7 +331,7 @@ client.on('messageCreate', message => {
                                             E_error(":name_badge: Error: 2-3-0020", error)
                                         })
                                 } else {
-                                    C_send(bot_json["Translate_zh_TW"], message.author.username + " >> " + res.data["response"])
+                                    C_send(bot_json["Translate_zh_TW"], message.author.username + " >> " + res.data["state"])
                                 }
                             })
                             .catch(error => {
@@ -476,6 +447,139 @@ client.on('messageCreate', message => {
                     .catch(error => {
                         E_error(":name_badge: Error: 3-5-0016", error)
                     })
+            }
+        }
+        //#endregion
+
+        //#region 天氣
+        if (message.content.includes("今日") || message.content.includes("今天") || message.content.includes("明天") || message.content.includes("後天") || message.content.includes("現在") || message.content.includes("當前")) {
+            let x=message.content
+            let urlweather = "https://www.cwb.gov.tw/rss/forecast/36_";
+            if (x.includes("台南") || x.includes("臺南")) {
+                urlweather = urlweather + '13.xml';
+            } else if (x.includes("高雄")) {
+                urlweather = urlweather + '02.xml';
+            } else if (x.includes("屏東")) {
+                urlweather = urlweather + '15.xml';
+            } else if (x.includes("台東") || x.includes("臺東")) {
+                urlweather = urlweather + '19.xml';
+            } else if (x.includes("花蓮")) {
+                urlweather = urlweather + '18.xml';
+            } else if (x.includes("宜蘭")) {
+                urlweather = urlweather + '17.xml';
+            } else if (x.includes("金門")) {
+                urlweather = urlweather + '21.xml';
+            } else if (x.includes("澎湖")) {
+                urlweather = urlweather + '20.xml';
+            } else if (x.includes("連江")) {
+                urlweather = urlweather + '22.xml';
+            } else if (x.includes("基隆")) {
+                urlweather = urlweather + '03.xml';
+            } else if (x.includes("台北") || x.includes("臺北")) {
+                urlweather = urlweather + '01.xml';
+            } else if (x.includes("新北")) {
+                urlweather = urlweather + '04.xml';
+            } else if (x.includes("桃園")) {
+                urlweather = urlweather + '05.xml';
+            } else if (x.includes("新竹市")) {
+                urlweather = urlweather + '14.xml';
+            } else if (x.includes("新竹縣")) {
+                urlweather = urlweather + '06.xml';
+            } else if (x.includes("苗栗")) {
+                urlweather = urlweather + '07.xml';
+            } else if (x.includes("台中") || x.includes("臺中")) {
+                urlweather = urlweather + '08.xml';
+            } else if (x.includes("南投")) {
+                urlweather = urlweather + '10.xml';
+            } else if (x.includes("彰化")) {
+                urlweather = urlweather + '09.xml';
+            } else if (x.includes("雲林")) {
+                urlweather = urlweather + '11.xml';
+            } else if (x.includes("嘉義縣")) {
+                urlweather = urlweather + '12.xml';
+            } else if (x.includes("嘉義市")) {
+                urlweather = urlweather + '16.xml';
+            }
+            if (urlweather != "https://www.cwb.gov.tw/rss/forecast/36_") {
+                (async () => {
+                    try {
+                        let rss = await parse(urlweather);
+                        let jsoncache1 = JSON.parse(JSON.stringify(rss, null, 3))
+                        fetch("http://quan.suning.com/getSysTime.do", { method: 'GET' })
+                            .then(res => {
+                                return res.text();
+                            }).then(result => {
+                                let jsoncache4 = JSON.parse(result);
+                                let time = jsoncache4["sysTime1"].substr(0, 8)
+                                let timenow1 = Number(jsoncache4["sysTime1"].substr(8, 4))
+                                if (timenow1 > 2315) {
+                                    time = time + "2300"
+                                } else if (timenow1 > 2215) {
+                                    time = time + "2200"
+                                } else if (timenow1 > 2115) {
+                                    time = time + "2100"
+                                } else if (timenow1 > 2015) {
+                                    time = time + "2000"
+                                } else if (timenow1 > 1915) {
+                                    time = time + "1900"
+                                } else if (timenow1 > 1815) {
+                                    time = time + "1800"
+                                } else if (timenow1 > 1715) {
+                                    time = time + "1700"
+                                } else if (timenow1 > 1615) {
+                                    time = time + "1600"
+                                } else if (timenow1 > 1515) {
+                                    time = time + "1500"
+                                } else if (timenow1 > 1415) {
+                                    time = time + "1400"
+                                } else if (timenow1 > 1315) {
+                                    time = time + "1300"
+                                } else if (timenow1 > 1215) {
+                                    time = time + "1200"
+                                } else if (timenow1 > 1115) {
+                                    time = time + "1100"
+                                } else if (timenow1 > 1015) {
+                                    time = time + "1000"
+                                } else if (timenow1 > 0915) {
+                                    time = time + "0900"
+                                } else if (timenow1 > 0815) {
+                                    time = time + "0800"
+                                } else if (timenow1 > 0715) {
+                                    time = time + "0700"
+                                } else if (timenow1 > 0615) {
+                                    time = time + "0600"
+                                } else if (timenow1 > 0515) {
+                                    time = time + "0500"
+                                } else if (timenow1 > 0415) {
+                                    time = time + "0400"
+                                } else if (timenow1 > 0315) {
+                                    time = time + "0300"
+                                } else if (timenow1 > 0215) {
+                                    time = time + "0200"
+                                } else if (timenow1 > 0115) {
+                                    time = time + "0100"
+                                } else if (timenow1 > 0015) {
+                                    time = time + "0000"
+                                }
+                                const exampleEmbed = new MessageEmbed()
+                                    .setColor('#0099ff')
+                                    .setTitle(jsoncache1["items"][0]['title'])
+                                    .setURL('')
+                                    .setAuthor('氣象資訊', '', '')
+                                    .setDescription(jsoncache1['items'][0]['description'].replace("<br>", ""))
+                                    .setThumbnail('https://images-ext-1.discordapp.net/external/LrDFomLRJU8JuKAVD_qug3-AU9sImKDoS0LaoyfIjd0/https/i.imgur.com/RuR3zoS.png')
+                                    .setImage('https://www.cwb.gov.tw/Data/radar/CV1_3600_' + time + '.png')
+                                    .setTimestamp()
+                                    .setFooter('ExpTech 提供技術支持 ' + ver, 'https://res.cloudinary.com/dh1luzdfd/image/upload/v1627819204/CollageMaker_20210625_142005712_gjeqjf.jpg');
+                                message.reply({ embeds: [exampleEmbed] });
+                            });
+                    } catch (error) {
+                        E_error(":name_badge: Error: weather", error)
+                    }
+                }
+                )();
+            } else {
+                E_error(":name_badge: Error: weather")
             }
         }
         //#endregion
@@ -676,7 +780,7 @@ function cache(x) {
                                                 if (check != "") C_send(consolechannel, ":arrow_up: " + update_Array[index] + " [" + update_json[update_Ver][0]["config"][0][update_Array[index]] + "]");
                                                 if (check != "") config_json[update_Array[index]] = update_json[update_Ver][0]["config"][0][update_Array[index]]
                                             } else {
-                                                if (check != "" && update_Array[index] != "token") C_send(consolechannel, ":placard: " + update_Array[index] + " [" + config_json[update_Array[index]] + "]");
+                                                if (check != "" && update_Array[index] != "token" && update_Array[index].includes("Webhook") == false) C_send(consolechannel, ":placard: " + update_Array[index] + " [" + config_json[update_Array[index]] + "]");
                                             }
                                         }
                                     }
