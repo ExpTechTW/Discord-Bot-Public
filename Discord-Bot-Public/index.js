@@ -35,7 +35,7 @@ let API
 fs.readFile(config_path, function (error, data) {
     if (error) {
         if (error.errno == -4058) {
-            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/Json/config.json')
+            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/config.json')
                 .then(function (res) {
                     return res.json();
                 }).then(function (json) {
@@ -48,7 +48,7 @@ fs.readFile(config_path, function (error, data) {
 fs.readFile(bot_path, function (error, data) {
     if (error) {
         if (error.errno == -4058) {
-            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/Json/bot.json')
+            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/bot.json')
                 .then(function (res) {
                     return res.json();
                 }).then(function (json) {
@@ -61,7 +61,7 @@ fs.readFile(bot_path, function (error, data) {
 fs.readFile(string_path, function (error, data) {
     if (error) {
         if (error.errno == -4058) {
-            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/Json/string.json')
+            fetch('https://raw.githubusercontent.com/ExpTechTW/Discord-Bot-Public/%E4%B8%BB%E8%A6%81%E7%9A%84-(main)/Discord-Bot-Public/string.json')
                 .then(function (res) {
                     return res.json();
                 }).then(function (json) {
@@ -720,13 +720,13 @@ function C_send(id, msg) {
 //#region 錯誤輸出調用
 function E_error(error, info) {
     if (error == ":name_badge: Error: 3-5-0016") {
-        if (API = config_json["API_URL"]) {
-            API = config_json["API_URL_SPARE"]
-            client.channels.cache.get(consolechannel).send(":name_badge: API 主服務器異常 已轉向備用服務器" + ver)
-        } else {
+        /*if (API = config_json["API_URL"]) {
+            API = config_json["API_URL_SPARE"]*/
+            client.channels.cache.get(consolechannel).send(":name_badge: API 主服務器異常" + ver)
+      /*} else {
             API = config_json["API_URL"]
             client.channels.cache.get(consolechannel).send(":name_badge: API 次服務器異常 已轉向主服務器" + ver)
-        }
+        }*/
     }
     if (check == "") {
         console.log('\x1b[31m', error.replace(":name_badge: ", "") + " 版本: " + ver, '\x1b[0m')
