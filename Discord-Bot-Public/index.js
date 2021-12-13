@@ -8,9 +8,9 @@ const axios = require('axios')
 const { parse } = require('rss-to-json');
 //#endregion
 
-let ver = "21w45"
+let ver = "21w50"
 
-let basedon = "21w45" //請勿更改
+let basedon = "21w50" //請勿更改
 let debug = "" //請勿更改
 
 //#region 變數宣告區域
