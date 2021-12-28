@@ -1,0 +1,43 @@
+{
+    "Update_ver": 102,
+    "100": [
+        {
+            "config": [
+                {
+                    "Index": [
+                        "token",
+                        "console"
+                    ],
+                    "token": "<Your Discord Bot Token>",
+                    "console": "Console ID"
+                }
+            ]
+        }
+    ],
+    "101": [
+        {
+            "config": [
+                {
+                    "Index": [
+                        "API_URL_SPARE"
+                    ],
+                    "API_URL_SPARE": "http://150.117.110.118:910/"
+                }
+            ]
+        }
+    ],
+    "102": [
+        {
+            "config": [
+                {
+                    "Index": [
+                        "Webhook-en",
+                        "Webhook-cht"
+                    ],
+                    "Webhook-en": "<Put Webhook URL Here (en channel)>",
+                    "Webhook-cht": "<Put Webhook URL Here (cht channel)>"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+{
+    "URL_Security_Verification": [
+        "true",
+        "false"
+    ],
+    "Translate_State": [
+        "true",
+        "false"
+    ],
+    "Translate_Repeat_Tag": [
+        "true",
+        "false"
+    ],
+    "Translate_en": "number",
+    "Translate_zh_TW": "number",
+    "ChatRecorder_State": [
+        "true",
+        "false"
+    ],
+    "ChatRecorder": "number",
+    "Channel_Adjustment_Notification_State": [
+        "true",
+        "false"
+    ],
+    "Channel_Adjustment_Notification": "number",
+    "ChannelCreate_Colour": null,
+    "ChannelDelete_Colour": null,
+    "Embed_Information": null,
+    "GUILD_TEXT": null,
+    "GUILD_VOICE": null,
+    "GUILD_NEWS": null,
+    "GUILD_STAGE_VOICE": null,
+    "DELETE_GUILD_TEXT": null,
+    "DELETE_GUILD_VOICE": null,
+    "DELETE_GUILD_NEWS": null,
+    "DELETE_GUILD_STAGE_VOICE": null
+}
